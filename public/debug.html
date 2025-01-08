@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .room { margin-bottom: 20px; }
+        * {color: black; } 
+    </style>
+</head>
+<body>
+    <h1>Debug Page: Rooms and Users</h1>
+    <div id="roomsContainer">
+
+    </div>
+
+    <script>
+        async function fetchRooms() {
+            const response = await fetch('/rooms');
+            const rooms = await response.json();
+            displayRooms(rooms);
+        }
+
+        function displayRooms(rooms) {
+            const roomsContainer = document.getElementById('roomsContainer');
+            roomsContainer.innerHTML = ''; // Rensa tidigare innehåll
+
+            for (const room in rooms) {
+        const usersList = rooms[room].users.length > 0 
+            ? rooms[room].users.join(', ') 
+            : 'No users';
+        roomsContainer.innerHTML += `
+            <div class="room">
+                <h2>Room: ${room}</h2>
+                <p>Users: ${usersList}</p>
+            </div>
+        `;
+            }
+        }
+        fetchRooms();
+    </script>
+</body>
+</html>
