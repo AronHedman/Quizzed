@@ -5,22 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Debug Page</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        .room { margin-bottom: 20px; }
-        * {color: black; } 
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .room {
+            margin-bottom: 20px;
+        }
+
+        * {
+            color: black;
+        }
+
+        #roomsContainer {
+            min-width: 10vw;
+            min-height: 10vh;
+        }
     </style>
 </head>
 <body>
     <h1>Debug Page: Rooms and Users</h1>
-    <div id="roomsContainer">
-
-    </div>
+    <div id="roomsContainer"></div>
 
     <script>
         async function fetchRooms() {
-            const response = await fetch('/rooms');
-            const rooms = await response.json();
-            displayRooms(rooms);
+            try {
+                const response = await fetch('/rooms');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const rooms = await response.json();
+                displayRooms(rooms);
+            } catch (error) {
+                console.error('Failed to fetch rooms:', error);
+            }
         }
 
         function displayRooms(rooms) {
@@ -28,17 +46,19 @@
             roomsContainer.innerHTML = ''; // Rensa tidigare innehåll
 
             for (const room in rooms) {
-        const usersList = rooms[room].users.length > 0 
-            ? rooms[room].users.join(', ') 
-            : 'No users';
-        roomsContainer.innerHTML += `
-            <div class="room">
-                <h2>Room: ${room}</h2>
-                <p>Users: ${usersList}</p>
-            </div>
-        `;
+                const usersList = rooms[room].length > 0
+                    ? rooms[room].join(', ')
+                    : 'No users';
+                roomsContainer.innerHTML += `
+                    <div class="room">
+                        <h2>Room: ${room}</h2>
+                        <p>Users: ${usersList}</p>
+                    </div>
+                `;
             }
         }
+
+        // Hämta och visa rummen när sidan laddas
         fetchRooms();
     </script>
 </body>
