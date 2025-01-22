@@ -14,7 +14,7 @@ app.get('/', (req, res) => {
 });
 
 const users = {}; //Kopplar Username till Socket.Id
-const rooms = {}; //Används till debug och att spåra användare+rum.
+const rooms = {}; //Används till debug och att spåra användarnamn+rum.
 
 
 io.on('connection', (socket) => {
@@ -31,12 +31,14 @@ io.on('connection', (socket) => {
     });
 
     //Create room
-    socket.on('createRoom', (roomId) => {
+    socket.on('createRoom', (roomId, username) => {
         if (!rooms[roomId]) {
-           rooms[roomId];
-            socket.join(roomId);
+           rooms[roomId] = [];
             console.log(`Room created: ${roomId}`);
-            socket.emit('roomJoined', roomId);
+            socket.join(roomId);
+            rooms[roomId].push(username);
+            console.log(`User: ${username} joined room: ${roomId}`);
+            socket.emit('moveRoom', roomId);
         } else {
             socket.emit('roomExists', roomId);
         }
@@ -46,26 +48,34 @@ io.on('connection', (socket) => {
     socket.on('joinRoom', (roomId, username) => {
         if (rooms[roomId]) {
             socket.join(roomId);
-            console.log(`User joined room: ${roomId}`);
+            rooms[roomId].push(username);
+            console.log(`User: ${username} joined room: ${roomId}`);
+            socket.emit('moveRoom', roomId);
         } else {
             socket.emit('roomNotFound', roomId);
         }
     });
 
-
-
-
-
+    //Debugger
+    socket.on('moveRoom', (roomId) => {
+        socket.emit('roomsUpdated');
+    });
 
     socket.on('disconnect', () => {
         console.log('A user disconnected'); //Kanske funkar, visar disconnect när man byter rum.
     });
 });
 
+
+//Debugger, kanske kan stanna kvar
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 //Till debuggern, skickar rummen
 app.get('/rooms', (req, res) => {
-    console.log(rooms);
     res.json(rooms);
+    console.log(rooms);
 });
 
 
