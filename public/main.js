@@ -1,6 +1,6 @@
 const socket = io();
 
-let username = "";
+const username = "";
 
 document.getElementById('usernameConfirmBtn').addEventListener("click", () => {
     if ((document.getElementById('username').value) != null) {

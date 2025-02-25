@@ -13,9 +13,25 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-const users = {}; //Kopplar Username till Socket.Id
-const rooms = {}; //Används till debug och att spåra användarnamn+rum.
+class player {
+    constructor(socketId, username, roomId) {
+        this.userId = socketId;
+        this.username = username;
+        this.roomId = roomId;
+        this.score = 0;
+    }
 
+    moveRoom(roomId) {
+        this.roomId = roomId;
+    }
+
+    updateScore(points) {
+        this.score += points;
+    }
+}
+
+const users = {};
+const rooms = {};
 
 io.on('connection', (socket) => {
     console.log('A user connected');
@@ -23,7 +39,7 @@ io.on('connection', (socket) => {
     //Username
     socket.on('usernameSignup', (username) => {
         if (!users[socket.id] && !Object.values(users).includes(username)) {
-            users[socket.id] = username;
+            users[socket.id] = new player(socket.id, username, null);
             socket.emit('validUsername', username);
         }else{
             socket.emit('invalidUsername', username);
@@ -77,7 +93,6 @@ app.get('/rooms', (req, res) => {
     res.json(rooms);
     console.log(rooms);
 });
-
 
 //server-port
 const PORT = process.env.PORT || 3000;
