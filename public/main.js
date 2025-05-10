@@ -9,7 +9,7 @@ document.getElementById('usernameConfirmBtn').addEventListener("click", () => {
         socket.emit('usernameSignup', username);
     }else { alert('Please enter a username'); }
 });
-
+  
 socket.on('validUsername', (username) => {
     username = username;
     document.getElementById('usernamePage').style.display = 'none';
